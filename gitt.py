@@ -20,12 +20,16 @@ import os
 import subprocess
 from subprocess import Popen, CREATE_NEW_CONSOLE
 
+# TODOs:
+# record macros
+# many menus
+# do thing by one key (shortcuts) !
+
+# сделать граф интерфейс для торг бота!
 
 # ================================
 
 class GitCommandsWindow(QtWidgets.QWidget):
-
-
 
 	def __init__(self):
 		super().__init__()
