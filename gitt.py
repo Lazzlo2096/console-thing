@@ -24,60 +24,50 @@ from subprocess import Popen, CREATE_NEW_CONSOLE
 # ================================
 
 class GitCommandsWindow(QtWidgets.QWidget):
+
+
+
 	def __init__(self):
 		super().__init__()
 
 		self.setWindowTitle("Git Commands")
 		self.setFixedSize(500, 500)
 
+		# ---------------------------------
 
-
-
-
-		self.select_window_button = QtWidgets.QPushButton("select window")
-		self.select_window_button.clicked.connect(self.select_window)
-		
-		self.run_new_console_and_select_button = QtWidgets.QPushButton("new console and select")
-		self.run_new_console_and_select_button.clicked.connect(self.new_console_and_select)
-
-
-
-
-
-		self.output_label = QtWidgets.QLabel()
-
-		self.layout = QtWidgets.QVBoxLayout()
-		
-		self.list_of_commands = [
+		list_of_commands = [
 			"git status",
 			"git add -u",
 			"gitk --all", # не в консоли вообще? А путь как брать?
 			"git commit",
 			"git commit --amend",
 			]
-		#self.layout.addWidget(self.status_button)
-		#self.layout.addWidget(self.add_button)
-		self.create_buttons()
+
+		self.output_label = QtWidgets.QLabel()
+
+		# ---------------------------------
+
+		self.layout = QtWidgets.QVBoxLayout()
 		
-		self.layout.addWidget(self.select_window_button)
-		self.layout.addWidget(self.run_new_console_and_select_button)
+		for command in list_of_commands:
+			self.construct_button_and_to_layout(command, self.run)
+			
+		self.construct_button_and_to_layout("select window",          self.select_window)
+		self.construct_button_and_to_layout("new console and select", self.new_console_and_select)
+
 		self.layout.addWidget(self.output_label)
-		
 		self.setLayout(self.layout)
 		
 		# ---------------------------------
 		
 		self.desktop = Desktop(backend="uia") 
+
+
+	def construct_button_and_to_layout(self, button_name, button_function):
+		button = QtWidgets.QPushButton( button_name )
+		button.clicked.connect( button_function )
 		
-
-
-
-	def create_buttons(self): 
-		for command in self.list_of_commands:
-			button = QtWidgets.QPushButton(command)
-			button.clicked.connect(self.run)
-			
-			self.layout.addWidget(button)
+		self.layout.addWidget( button )
 
 	def run(self):
 		button_name = self.sender().text() # лайфхак!
