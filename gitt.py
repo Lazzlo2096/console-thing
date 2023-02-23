@@ -30,54 +30,64 @@ class GitCommandsWindow(QtWidgets.QWidget):
 		self.setWindowTitle("Git Commands")
 		self.setFixedSize(500, 500)
 
-		self.status_button = QtWidgets.QPushButton("git status")
-		self.status_button.clicked.connect(self.run_git_status)
 
-		self.add_button = QtWidgets.QPushButton("git add -u")
-		self.add_button.clicked.connect(self.run_git_add_u)
-		
+
+
+
 		self.select_window_button = QtWidgets.QPushButton("select window")
 		self.select_window_button.clicked.connect(self.select_window)
+		
+		self.run_new_console_and_select_button = QtWidgets.QPushButton("new console and select")
+		self.run_new_console_and_select_button.clicked.connect(self.new_console_and_select)
+
+
+
+
 
 		self.output_label = QtWidgets.QLabel()
 
-		layout = QtWidgets.QVBoxLayout()
-		layout.addWidget(self.status_button)
-		layout.addWidget(self.add_button)
-		layout.addWidget(self.select_window_button)
-		layout.addWidget(self.output_label)
-		self.setLayout(layout)
+		self.layout = QtWidgets.QVBoxLayout()
+		
+		self.list_of_commands = [
+			"git status",
+			"git add -u",
+			"gitk --all", # не в консоли вообще? А путь как брать?
+			"git commit",
+			"git commit --amend",
+			]
+		#self.layout.addWidget(self.status_button)
+		#self.layout.addWidget(self.add_button)
+		self.create_buttons()
+		
+		self.layout.addWidget(self.select_window_button)
+		self.layout.addWidget(self.run_new_console_and_select_button)
+		self.layout.addWidget(self.output_label)
+		
+		self.setLayout(self.layout)
 		
 		# ---------------------------------
 		
 		self.desktop = Desktop(backend="uia") 
 		
-		self.list_of_commands = [
-			"git status",
-			"git add -u",
-			"gitk --all"
-			]
-		
 
-	def run_git_status(self):
+
+
+	def create_buttons(self): 
+		for command in self.list_of_commands:
+			button = QtWidgets.QPushButton(command)
+			button.clicked.connect(self.run)
+			
+			self.layout.addWidget(button)
+
+	def run(self):
+		button_name = self.sender().text() # лайфхак!
+		print(f"run {button_name}")
 		self.w.set_focus()
-		#self.w.type_keys('clear\n', with_spaces=True, with_newlines=True)
-		self.w.type_keys('git status\n', with_spaces=True, with_newlines=True)
-
-	def run_git_add_u(self):
-		self.w.set_focus()
-		self.w.type_keys('git status\n', with_spaces=True, with_newlines=True)
-
-
-	def run_git_commit(self):
-		self.w.set_focus()
-		self.w.type_keys('git commit\n', with_spaces=True, with_newlines=True)
+		self.w.type_keys(f'{button_name}\n', with_spaces=True, with_newlines=True)
+			# если w не инициирован, то создать консоль и запустить в ней лол
 
 
 
-	def run_gitk_all(self):
-		self.w.set_focus()
-		self.w.type_keys('gitk --all\n', with_spaces=True, with_newlines=True)
 
 	def highlight_w(self, item):
 		select_win_name = item.text()
@@ -87,21 +97,17 @@ class GitCommandsWindow(QtWidgets.QWidget):
 				#window.highlight(colour='red', delay=2)
 				window.set_focus()
 
-	def on_item_clicked_old(self, item):
-		window_title = item.text()
-		hwnd = win32gui.FindWindow(None, window_title)
-		if hwnd:
-			win32gui.SetForegroundWindow(hwnd)
-			win32gui.ShowWindow(hwnd, win32gui.ILD_NORMAL)
-			QtGui.QGuiApplication.primaryScreen().grabWindow(hwnd).highlight()
+	def autoselect_console(self):
+		pass
 
-	def select_window(self):
-
+	def new_console_and_select(self): # нужно в некий стек консолей сделать лол # Склонировать консоль с тем же путём лол
 		script_dir = os.path.dirname(os.path.abspath(__file__))
 		#subprocess.Popen("powershell.exe", cwd=r".")
 		#subprocess.Popen('cmd', creationflags=CREATE_NEW_CONSOLE)
 		#subprocess.Popen(f'powershell.exe {script_dir}', creationflags=CREATE_NEW_CONSOLE)
 		subprocess.Popen(f"""powershell.exe -noexit -command "cd '{script_dir}'" """, creationflags=CREATE_NEW_CONSOLE)
+
+	def select_window(self):
 
 		dialog = QtWidgets.QDialog(self)
 		dialog.setWindowTitle("Select Window")
@@ -157,22 +163,6 @@ class GitCommandsWindow(QtWidgets.QWidget):
 		layout.addWidget(button_box)
 
 		dialog.exec()
-
-	def select_window_old(self):
-		
-		result = ""
-		
-		# Выводм все окна
-		for w in self.desktop.windows():
-			win_name = w.window_text()
-			print( win_name, w.is_visible(), w.handle )
-			result += f"{win_name}, {w.is_visible()}, {w.handle}\n"
-		
-		self.output_label.setText(result)
-		
-		#select_win_name = "Windows PowerShell"
-		select_win_name = "*Безымянный – Блокнот"
-		self.w = self.desktop.window(title=select_win_name) # Выбираем окно по имени
 
 
 
