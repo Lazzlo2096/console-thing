@@ -27,12 +27,19 @@ from subprocess import Popen, CREATE_NEW_CONSOLE
 
 # сделать граф интерфейс для торг бота!
 
+from macro_recorder import MacroRecorder
+
 # ================================
 
 class GitCommandsWindow(QtWidgets.QWidget):
 
 	def __init__(self):
 		super().__init__()
+		
+		# -----------------------
+		self.mr = MacroRecorder()
+		self.mr.start()
+		# -----------------------
 
 		self.setWindowTitle("Git Commands")
 		self.setFixedSize(500, 500)
@@ -58,6 +65,10 @@ class GitCommandsWindow(QtWidgets.QWidget):
 			
 		self.construct_button_and_to_layout("select window",          self.select_window)
 		self.construct_button_and_to_layout("new console and select", self.new_console_and_select)
+		
+		self.construct_button_and_to_layout("start_recording", self.mr.record)
+		self.construct_button_and_to_layout("stop_recording", self.mr.stop_record)
+		self.construct_button_and_to_layout("play_recorded_clicks", self.mr.play)
 
 		self.layout.addWidget(self.output_label)
 		self.setLayout(self.layout)
@@ -79,7 +90,6 @@ class GitCommandsWindow(QtWidgets.QWidget):
 		self.w.set_focus()
 		self.w.type_keys(f'{button_name}\n', with_spaces=True, with_newlines=True)
 			# если w не инициирован, то создать консоль и запустить в ней лол
-
 
 
 
