@@ -52,7 +52,7 @@ class MacroRecorder:
 		print("record clicks")
 		self.clicks = []
 		self.is_record = True
-	
+
 	def stop_record(self):
 		print("stop record clicks")
 		self.is_record = False
